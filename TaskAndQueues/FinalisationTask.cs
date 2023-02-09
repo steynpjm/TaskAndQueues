@@ -16,11 +16,13 @@ namespace TaskAndQueues
 
     public event EventHandler<string> OnStatus;
 
-    public void DoWork()
+    public async Task DoWorkAsync()
     {
       while (!_token.IsCancellationRequested)
       {
-        Thread.Sleep(_taskDuration);
+        //Thread.Sleep(_taskDuration);
+        await Task.Delay(_taskDuration);
+
         while (!_inputQueue.IsEmpty)
         {
           string inputString;

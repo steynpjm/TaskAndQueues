@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-
+using System.Threading.Tasks;
 
 namespace TaskAndQueues
 {
@@ -11,11 +11,12 @@ namespace TaskAndQueues
   {
     public event EventHandler<string> OnStatus;
 
-    public void DoWork()
+    public async Task DoWork()
     {
       while (!_token.IsCancellationRequested)
       {
-        Thread.Sleep(1500);
+        await Task.Delay(1500);
+        //Thread.Sleep(1500);
         OnStatusNotification($">>> Processing Queue: {_inputQueue.Count}");
         OnStatusNotification($">>> Finalisation Queue: {_processingQueue.Count}");
       }

@@ -8,7 +8,7 @@ namespace TaskAndQueues
 {
   class Program
   {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
       CancellationTokenSource cts = new CancellationTokenSource();
       try
@@ -22,41 +22,41 @@ namespace TaskAndQueues
         // Setup the task to display the queue lengths.
         DisplayTask displayTask = new DisplayTask(cts.Token, queue1, queue2);
         displayTask.OnStatus += HandleOnStatus;
-        Task taskDisplay = new Task(displayTask.DoWork);
+        Task taskDisplay = displayTask.DoWork();
         taskList.Add(taskDisplay);
 
         // Setup the task that will add data (integer numbers) to the first queue.
-        AddEntryTask mainTask = new AddEntryTask(cts.Token, queue1, 1000);
+        AddEntryTask mainTask = new AddEntryTask(cts.Token, queue1, 100);
         mainTask.OnStatus += HandleOnStatus;
-        Task task1 = new Task(mainTask.DoWork);
+        Task task1 = mainTask.DoWork();
         taskList.Add(task1);
 
         // Setup a task that will take data from the first queue, "process" it and put it the second queue.
         // This is the first of two tasks that will process data from the same input queue and put the results in the same output queue.
         ProcessEntryTask processTask1 = new ProcessEntryTask(cts.Token, queue1, queue2, 2000, "Processor1");
         processTask1.OnStatus += HandleOnStatus;
-        Task task2 = new Task(processTask1.DoWork);
+        Task task2 = processTask1.DoWork();
         taskList.Add(task2);
 
         // Setup a task that will take data from the first queue, "process" it and put it the second queue.
         // This is the second of two tasks that will process data from the same input queue and put the results in the same output queue.
-        ProcessEntryTask processTask2 = new ProcessEntryTask(cts.Token, queue1, queue2, 900, "Processor2");
+        ProcessEntryTask processTask2 = new ProcessEntryTask(cts.Token, queue1, queue2, 1900, "Processor2");
         processTask2.OnStatus += HandleOnStatus;
-        Task task3 = new Task(processTask2.DoWork);
+        Task task3 = processTask2.DoWork();
         taskList.Add(task3);
 
         // Setup a task that takes data from the second queue, "process" them and then throw them away.
         // Note: this process runs less often and process all the current items in the queue as a batch.
         FinalisationTask finalisationTask = new FinalisationTask(cts.Token, queue2, 10000);
         finalisationTask.OnStatus += HandleOnStatus;
-        Task finTask = new Task(finalisationTask.DoWork);
+        Task finTask = finalisationTask.DoWorkAsync();
         taskList.Add(finTask);
 
         // Start each of the tasks.
-        foreach (Task task in taskList)
-        {
-          task.Start();
-        }
+        //foreach (Task task in taskList)
+        //{
+        //  task.Start();
+        //}
 
         //Wait for all tasks to finish.
         Task.WaitAll(taskList.ToArray());
